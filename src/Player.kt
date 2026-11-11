@@ -1,12 +1,9 @@
 class Player(val name: String) {
-
-    private val _field: Array<CharArray> =
-        Array(10) { CharArray(10) { '.' } }
-
-    fun field(): Array<CharArray> = _field
-
+    private val _field: Array<Array<CellState>> = Array(10) { Array(10) { CellState.EMPTY } }
     private var _shots: Int = 0
     private var _hits: Int = 0
+
+    fun field(): Array<Array<CellState>> = _field
 
     val shots: Int
         get() = _shots
@@ -24,13 +21,13 @@ class Player(val name: String) {
 
     fun placeShip(row: Int, col: Int) {
         if (row in 0..9 && col in 0..9) {
-            _field[row][col] = '#'
+            _field[row][col] = CellState.SHIP
         }
     }
 
     fun markShot(row: Int, col: Int, hit: Boolean) {
         if (row in 0..9 && col in 0..9) {
-            _field[row][col] = if (hit) 'X' else 'O'
+            _field[row][col] = if (hit) CellState.HIT else CellState.MISS
         }
     }
 
@@ -39,7 +36,7 @@ class Player(val name: String) {
         _hits = 0
         for (r in 0..9) {
             for (c in 0..9) {
-                _field[r][c] = '.'
+                _field[r][c] = CellState.EMPTY
             }
         }
     }

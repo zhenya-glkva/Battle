@@ -8,11 +8,27 @@ fun printBothFields(player: Player, enemy: Player) {
     println()
     for (r in 0..9) {
         print("$r  ")
-        for (c in 0..9) print("${player.field()[r][c]} ")
+        for (c in 0..9) print("${player.field()[r][c].toChar()} ")
         print("       ")
         print("$r  ")
-        for (c in 0..9) print("${enemy.field()[r][c]} ")
+        for (c in 0..9) print("${enemy.field()[r][c].toChar()} ")
         println()
+    }
+}
+
+enum class GameState {
+    PLACING,
+    PLAYER_TURN,
+    ENEMY_TURN,
+    FINISHED
+}
+
+fun describe(state: GameState): String {
+    return when (state) {
+        GameState.PLACING -> "Идет расстановка кораблей"
+        GameState.PLAYER_TURN -> "Сейчас ход игрока"
+        GameState.ENEMY_TURN -> "Сейчас ход компьютера"
+        GameState.FINISHED -> "Игра завершена"
     }
 }
 
@@ -40,6 +56,12 @@ fun main() {
 
     println("Выстрелов: ${player.shots}")
     println("Попаданий: ${player.hits}")
+
+    val bigShip = ShipType.BATTLESHIP
+    println("Размер линкора: ${bigShip.size}")
+    println("Это большой корабль? ${bigShip.isBig()}")
+
+    println(describe(GameState.PLAYER_TURN))
 
     player.reset()
     println(player.status())
