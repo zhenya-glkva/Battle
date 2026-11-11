@@ -1,38 +1,46 @@
-fun main() {
-    val player = Player()
-    player.name = "Вы"
-    player.shots = 10
-    player.hits = 7
-    player.shipsLeft = 15
-
-    val enemy = Player()
-    enemy.name = "Компьютер"
-    enemy.shots = 5
-    enemy.hits = 2
-    enemy.shipsLeft = 0
-
-    println("--- Проверка игроков ---")
-    println(player.status())
-    println("Жив ли игрок? ${player.isAlive()}")
+fun printBothFields(player: Player, enemy: Player) {
+    println("=== Поле игрока ${player.name} ===       === Поле игрока ${enemy.name} ===")
+    print("   ")
+    for (c in 0..9) print("$c ")
+    print("       ")
+    print("   ")
+    for (c in 0..9) print("$c ")
     println()
-    println(enemy.status())
-    println("Жив ли компьютер? ${enemy.isAlive()}")
+    for (r in 0..9) {
+        print("$r  ")
+        for (c in 0..9) print("${player.field()[r][c]} ")
+        print("       ")
+        print("$r  ")
+        for (c in 0..9) print("${enemy.field()[r][c]} ")
+        println()
+    }
+}
 
-    println("\n--- Сценарий из задания ---")
-    val testPlayer = Player()
-    testPlayer.name = "Вы"
+fun main() {
+    val player = Player("Вы")
+    val enemy = Player("Компьютер")
 
-    testPlayer.registerShot(true)
-    testPlayer.registerShot(false)
-    testPlayer.registerShot(true)
+    player.placeShip(3, 2)
+    player.placeShip(3, 3)
+    player.placeShip(3, 4)
+    player.placeShip(3, 5)
 
-    println(testPlayer.status())
+    enemy.placeShip(5, 7)
+    enemy.placeShip(6, 7)
+    enemy.placeShip(7, 7)
 
-    testPlayer.takeDamage()
-    testPlayer.takeDamage()
-    println(testPlayer.shipsLeft)
-    println(testPlayer.isAlive())
+    printBothFields(player, enemy)
+    println()
 
-    testPlayer.reset()
-    println(testPlayer.status())
+    player.registerShot(true)
+    player.registerShot(false)
+    player.registerShot(true)
+
+    println(player.status())
+
+    println("Выстрелов: ${player.shots}")
+    println("Попаданий: ${player.hits}")
+
+    player.reset()
+    println(player.status())
 }
