@@ -1,9 +1,10 @@
 class Player(val name: String) {
     private val _field: Array<Array<CellState>> = Array(10) { Array(10) { CellState.EMPTY } }
-    private var _shots: Int = 0
-    private var _hits: Int = 0
 
     fun field(): Array<Array<CellState>> = _field
+
+    private var _shots: Int = 0
+    private var _hits: Int = 0
 
     val shots: Int
         get() = _shots
@@ -19,18 +20,6 @@ class Player(val name: String) {
         if (hit) _hits++
     }
 
-    fun placeShip(row: Int, col: Int) {
-        if (row in 0..9 && col in 0..9) {
-            _field[row][col] = CellState.SHIP
-        }
-    }
-
-    fun markShot(row: Int, col: Int, hit: Boolean) {
-        if (row in 0..9 && col in 0..9) {
-            _field[row][col] = if (hit) CellState.HIT else CellState.MISS
-        }
-    }
-
     fun reset() {
         _shots = 0
         _hits = 0
@@ -44,5 +33,86 @@ class Player(val name: String) {
     fun status(): String {
         val acc = String.format("%.1f", accuracy())
         return "Игрок $name: выстрелов $_shots, попаданий $_hits, точность $acc%"
+    }
+
+    fun isInside(row: Int, col: Int): Boolean {
+        return row in 0..9 && col in 0..9
+    }
+
+    fun canPlaceShip(startRow: Int, startCol: Int, size: Int, horizontal: Boolean): Boolean {
+        for (i in 0 until size) {
+            val r = if (horizontal) startRow else startRow + i
+            val c = if (horizontal) startCol + i else startCol
+
+            if (!isInside(r, c)) return false
+            if (_field[r][c] != CellState.EMPTY) return false
+
+            for (dr in -1..1) {
+                for (dc in -1..1) {
+                    if (dr == 0 && dc == 0) continue
+                    val nr = r + dr
+                    val nc = c + dc
+                    if (isInside(nr, nc) && _field[nr][nc] == CellState.SHIP) {
+                        return false
+                    }
+                }
+            }
+        }
+        return true
+    }
+
+    fun placeShip(startRow: Int, startCol: Int, size: Int, horizontal: Boolean): Boolean {
+        if (!canPlaceShip(startRow, startCol, size, horizontal)) {
+            return false
+        }
+        for (i in 0 until size) {
+            val r = if (horizontal) startRow else startRow + i
+            val c = if (horizontal) startCol + i else startCol
+            _field[r][c] = CellState.SHIP
+        }
+        return true
+    }
+
+    fun shoot(row: Int, col: Int): Boolean {
+        if (!isInside(row, col)) {
+            println("Выстрел за границей поля!")
+            return false
+        }
+
+        val current = _field[row][col]
+        if (current == CellState.HIT || current == CellState.MISS) {
+            println("Сюда уже стреляли!")
+            return false
+        }
+
+        val hit = (current == CellState.SHIP)
+        _field[row][col] = if (hit) CellState.HIT else CellState.MISS
+        registerShot(hit)
+        return hit
+    }
+
+    fun hasShips(): Boolean {
+        for (r in 0..9) {
+            for (c in 0..9) {
+                if (_field[r][c] == CellState.SHIP) return true
+            }
+        }
+        return false
+    }
+
+    fun countShips(): Int {
+        var count = 0
+        for (r in 0..9) {
+            for (c in 0..9) {
+                if (_field[r][c] == CellState.SHIP) {
+                    val topEmpty = (r == 0 || _field[r - 1][c] != CellState.SHIP)
+                    val leftEmpty = (c == 0 || _field[r][c - 1] != CellState.SHIP)
+                    if (topEmpty && leftEmpty) {
+                        count++
+                    }
+                }
+            }
+        }
+        return count
     }
 }
