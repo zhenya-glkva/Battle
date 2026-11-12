@@ -61,6 +61,21 @@ class Player(val name: String) {
         return true
     }
 
+    fun hasShips(): Boolean {
+        for (r in 0..9) {
+            for (c in 0..9) {
+                if (_field[r][c] == CellState.SHIP) return true
+            }
+        }
+        return false
+    }
+
+    fun canShootAt(row: Int, col: Int): Boolean {
+        if (!isInside(row, col)) return false
+        val state = _field[row][col]
+        return state != CellState.HIT && state != CellState.MISS
+    }
+
     fun placeShip(startRow: Int, startCol: Int, size: Int, horizontal: Boolean): Boolean {
         if (!canPlaceShip(startRow, startCol, size, horizontal)) {
             return false
@@ -74,45 +89,13 @@ class Player(val name: String) {
     }
 
     fun shoot(row: Int, col: Int): Boolean {
-        if (!isInside(row, col)) {
-            println("Выстрел за границей поля!")
+        if (!canShootAt(row, col)) {
+            println("Выстрел невозможен: за границей или сюда уже стреляли.")
             return false
         }
-
-        val current = _field[row][col]
-        if (current == CellState.HIT || current == CellState.MISS) {
-            println("Сюда уже стреляли!")
-            return false
-        }
-
-        val hit = (current == CellState.SHIP)
+        val hit = (_field[row][col] == CellState.SHIP)
         _field[row][col] = if (hit) CellState.HIT else CellState.MISS
         registerShot(hit)
         return hit
-    }
-
-    fun hasShips(): Boolean {
-        for (r in 0..9) {
-            for (c in 0..9) {
-                if (_field[r][c] == CellState.SHIP) return true
-            }
-        }
-        return false
-    }
-
-    fun countShips(): Int {
-        var count = 0
-        for (r in 0..9) {
-            for (c in 0..9) {
-                if (_field[r][c] == CellState.SHIP) {
-                    val topEmpty = (r == 0 || _field[r - 1][c] != CellState.SHIP)
-                    val leftEmpty = (c == 0 || _field[r][c - 1] != CellState.SHIP)
-                    if (topEmpty && leftEmpty) {
-                        count++
-                    }
-                }
-            }
-        }
-        return count
     }
 }
